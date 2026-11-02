@@ -23,11 +23,11 @@ export default function MyBorrowPage() {
   const [removingId, setRemovingId] = useState<string | null>(null);
 
   // Redirect guests
-  useEffect(() => {
-    if (!isPending && !user) {
-      router.replace("/signin");
-    }
-  }, [isPending, user, router]);
+  // useEffect(() => {
+  //   if (!isPending && !user) {
+  //     router.replace("/signin");
+  //   }
+  // }, [isPending, user, router]);
 
   // Load the logged user's borrowed books (those stored with their email)
   useEffect(() => {

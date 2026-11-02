@@ -2,8 +2,8 @@ import { Suspense } from "react";
 import Link from "next/link";
 import CategoryBooks from "@/components/Body/CategoryBooks";
 
-// Static fallback shown in the prerendered shell while the category
-// name streams in (it comes from the URL, so it's request-time data).
+
+
 function CategoryFallback() {
   return (
     <main className="mx-auto max-w-7xl px-4 py-12">

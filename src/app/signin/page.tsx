@@ -17,6 +17,15 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
 
+  // Where to go after a successful sign-in: the protected page that redirected
+  // here (passed as ?next=... by the proxy), or the home page.
+  const getRedirectTarget = () => {
+    if (typeof window === "undefined") return "/";
+
+    const next = new URLSearchParams(window.location.search).get("next");
+    return next && next.startsWith("/") ? next : "/";
+  };
+
   // Google & GitHub Sign In
   const handleSocialSignIn = async (provider: "google" | "github") => {
     try {
@@ -25,7 +34,7 @@ export default function SignInPage() {
 
       const { error } = await authClient.signIn.social({
         provider,
-        callbackURL: "/",
+        callbackURL: getRedirectTarget(),
       });
 
       if (error) {
@@ -64,7 +73,7 @@ export default function SignInPage() {
 
       toast.success("Signed in successfully. Welcome back!");
 
-      router.push("/");
+      router.push(getRedirectTarget());
       router.refresh();
     } catch (err) {
       console.error(err);
@@ -216,7 +225,7 @@ export default function SignInPage() {
           <button
             type="submit"
             disabled={loading || !!socialLoading}
-            className="w-full rounded-lg bg-[#8fd0a0] px-4 py-3 text-sm font-bold text-[#122a1f] transition hover:bg-[#a5dfb3] disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full cursor-pointer rounded-lg bg-[#8fd0a0] px-4 py-3 text-sm font-bold text-[#122a1f] transition hover:bg-[#a5dfb3] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
