@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { Josefin_Sans, Lora } from "next/font/google";
 import "./globals.css"; 
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { ToastProvider } from "@/components/Toast";
 
 
 const josefinSans = Josefin_Sans({
@@ -33,9 +35,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${josefinSans.variable} ${lora.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans"> 
- <Navbar />
-        {children} 
-        
+ <ToastProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </ToastProvider>
       </body>
     </html>
   );

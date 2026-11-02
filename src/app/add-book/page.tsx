@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { useToast } from "@/components/Toast";
 
 const CATEGORIES = [
   "Fiction",
@@ -19,6 +20,7 @@ const CATEGORIES = [
 
 export default function AddBookPage() {
   const router = useRouter();
+  const { toast } = useToast();
 
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
@@ -46,6 +48,7 @@ export default function AddBookPage() {
 
     if (!user) {
       setError("You must be signed in to add a book.");
+      toast.error("You must be signed in to add a book.");
       return;
     }
 
@@ -81,7 +84,9 @@ export default function AddBookPage() {
         throw new Error("Failed to add the book");
       }
 
-      router.push("/all-books");
+      toast.success(`"${title.trim()}" was added to the library!`);
+
+      router.push("/my-books");
       router.refresh();
     } catch (err) {
       console.error(err);
@@ -90,6 +95,7 @@ export default function AddBookPage() {
           ? err.message
           : "Something went wrong. Please try again."
       );
+      toast.error("Failed to add the book. Please try again.");
     } finally {
       setLoading(false);
     }

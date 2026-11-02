@@ -5,10 +5,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { useToast } from "@/components/Toast";
+import type { Book } from "../my-books/types";
 import type { Borrow } from "./types";
 
 export default function MyBorrowPage() {
   const router = useRouter();
+  const { toast } = useToast();
 
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
@@ -52,6 +55,7 @@ export default function MyBorrowPage() {
 
         if (!cancelled) {
           setError("Failed to load your borrowed books. Please try again.");
+          toast.error("Failed to load your borrowed books. Please try again.");
         }
       } finally {
         if (!cancelled) {
@@ -63,7 +67,7 @@ export default function MyBorrowPage() {
     return () => {
       cancelled = true;
     };
-  }, [isPending, user?.email]);
+  }, [isPending, user?.email, toast]);
 
   const handleRemove = async (borrow: Borrow) => {
     if (!window.confirm(`Remove "${borrow.title ?? "this book"}" from your borrows?`)) {
@@ -82,9 +86,55 @@ export default function MyBorrowPage() {
       }
 
       setBorrows((prev) => prev.filter((b) => b._id !== borrow._id));
+
+      // Give the returned copy back to the book so it becomes
+      // available again on the book details page
+      if (borrow.bookId) {
+        try {
+          const booksRes = await fetch("http://localhost:8000/books");
+
+          if (booksRes.ok) {
+            const books: Book[] = await booksRes.json();
+            const book = books.find((b) => b._id === borrow.bookId);
+
+            if (book) {
+              const restoredCopies = (book.copies ?? 0) + 1;
+
+              const putRes = await fetch(
+                `http://localhost:8000/books/${book._id}`,
+                {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    title: book.title,
+                    author: book.author,
+                    category: book.category,
+                    description: book.description,
+                    coverImage: book.coverImage,
+                    name: book.name,
+                    email: book.email,
+                    copies: restoredCopies,
+                  }),
+                }
+              );
+
+              if (!putRes.ok) {
+                console.error("Failed to restore the book copies");
+              }
+            }
+          }
+        } catch (restoreErr) {
+          console.error(restoreErr);
+        }
+      }
+
+      toast.success(
+        `"${borrow.title ?? "The book"}" was removed from your borrows.`
+      );
     } catch (err) {
       console.error(err);
       setError("Failed to remove the borrowed book. Please try again.");
+      toast.error("Failed to remove the borrowed book. Please try again.");
     } finally {
       setRemovingId(null);
     }

@@ -5,6 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "../lib/auth-client";
+import { useToast } from "./Toast";
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
@@ -39,6 +40,7 @@ export default function Navbar() {
   const [loggingOut, setLoggingOut] = useState(false);
 
   const router = useRouter();
+  const { toast } = useToast();
 
   const { data: session, isPending } = authClient.useSession();
 
@@ -49,10 +51,15 @@ export default function Navbar() {
       await authClient.signOut();
 
       setMenuOpen(false);
+
+      toast.success("You have been logged out. See you soon!");
+
       router.push("/");
       router.refresh();
     } catch (error) {
       console.error("Logout failed:", error);
+
+      toast.error("Logout failed. Please try again.");
     } finally {
       setLoggingOut(false);
     }

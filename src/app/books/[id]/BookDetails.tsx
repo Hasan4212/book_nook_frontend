@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { use } from "react";
 import { authClient } from "@/lib/auth-client";
+import { useToast } from "@/components/Toast";
 import type { Borrow } from "@/app/my-borrow/types";
 
 interface Book {
@@ -27,6 +28,7 @@ const BookDetails = ({ params }: { params: Promise<{ id: string }> }) => {
 
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
+  const { toast } = useToast();
 
   const [alreadyBorrowed, setAlreadyBorrowed] = useState(false);
   const [borrowing, setBorrowing] = useState(false);
@@ -68,13 +70,14 @@ const BookDetails = ({ params }: { params: Promise<{ id: string }> }) => {
       } catch (error) {
         console.error(error);
         setNotFound(true);
+        toast.error("Failed to load the book. Please try again.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchBook();
-  }, [id, isPending, user?.email]);
+  }, [id, isPending, user?.email, toast]);
 
   if (loading) {
     return <p className="py-10 text-center">Loading book...</p>;
@@ -128,6 +131,8 @@ const BookDetails = ({ params }: { params: Promise<{ id: string }> }) => {
 
       setAlreadyBorrowed(true);
 
+      toast.success(`You borrowed "${book.title}". Happy reading!`);
+
       // Decrease the available copies of the borrowed book
       if (book.copies !== undefined) {
         const newCopies = Math.max(0, book.copies - 1);
@@ -158,6 +163,7 @@ const BookDetails = ({ params }: { params: Promise<{ id: string }> }) => {
     } catch (err) {
       console.error(err);
       setBorrowError("Failed to borrow this book. Please try again.");
+      toast.error("Failed to borrow this book. Please try again.");
     } finally {
       setBorrowing(false);
     }

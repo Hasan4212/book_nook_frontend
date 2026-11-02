@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { useToast } from "@/components/Toast";
 import type { Book, EditFormState } from "./types";
 
 const CATEGORIES = [
@@ -22,6 +23,7 @@ const CATEGORIES = [
 
 export default function MyBooksPage() {
   const router = useRouter();
+  const { toast } = useToast();
 
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
@@ -71,6 +73,7 @@ export default function MyBooksPage() {
 
         if (!cancelled) {
           setError("Failed to load your books. Please try again.");
+          toast.error("Failed to load your books. Please try again.");
         }
       } finally {
         if (!cancelled) {
@@ -82,7 +85,7 @@ export default function MyBooksPage() {
     return () => {
       cancelled = true;
     };
-  }, [isPending, user?.email]);
+  }, [isPending, user?.email, toast]);
 
   const handleDelete = async (book: Book) => {
     if (!window.confirm(`Delete "${book.title}" from the library?`)) {
@@ -102,9 +105,12 @@ export default function MyBooksPage() {
 
       // Remove it from the list without refetching everything
       setBooks((prev) => prev.filter((b) => b._id !== book._id));
+
+      toast.success(`"${book.title}" was deleted from your books.`);
     } catch (err) {
       console.error(err);
       setError("Failed to delete the book. Please try again.");
+      toast.error("Failed to delete the book. Please try again.");
     } finally {
       setDeletingId(null);
     }
@@ -165,10 +171,13 @@ export default function MyBooksPage() {
         prev.map((b) => (b._id === editingId ? { ...b, ...updated } : b))
       );
 
+      toast.success(`"${editForm.title}" was updated successfully.`);
+
       closeEditModal();
     } catch (err) {
       console.error(err);
       setError("Failed to update the book. Please try again.");
+      toast.error("Failed to update the book. Please try again.");
     } finally {
       setSavingEdit(false);
     }
@@ -192,6 +201,24 @@ export default function MyBooksPage() {
         <p className="mt-1.5 text-sm text-foreground/60">
           Books you added to the library.
         </p>
+
+        <Link
+          href="/add-book"
+          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#8fd0a0] px-4 py-2 text-sm font-semibold text-[#122a1f] transition hover:bg-[#a5dfb3]"
+        >
+          <svg
+            className="size-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          Add Book
+        </Link>
       </div>
 
       <div className="mx-auto w-full max-w-4xl px-4 py-10">
