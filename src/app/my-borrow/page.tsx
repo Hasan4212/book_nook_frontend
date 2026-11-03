@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { authorizedFetch } from "@/lib/api";
 import { useToast } from "@/components/Toast";
 import type { Book } from "../my-books/types";
 import type { Borrow } from "./types";
@@ -39,7 +40,7 @@ export default function MyBorrowPage() {
 
     (async () => {
       try {
-        const res = await fetch("http://localhost:8000/borrows");
+        const res = await authorizedFetch("http://localhost:8000/borrows");
 
         if (!res.ok) {
           throw new Error("Failed to fetch borrowed books");
@@ -77,7 +78,7 @@ export default function MyBorrowPage() {
     try {
       setRemovingId(borrow._id);
 
-      const res = await fetch(`http://localhost:8000/borrow/${borrow._id}`, {
+      const res = await authorizedFetch(`http://localhost:8000/borrow/${borrow._id}`, {
         method: "DELETE",
       });
 
@@ -100,7 +101,7 @@ export default function MyBorrowPage() {
             if (book) {
               const restoredCopies = (book.copies ?? 0) + 1;
 
-              const putRes = await fetch(
+              const putRes = await authorizedFetch(
                 `http://localhost:8000/books/${book._id}`,
                 {
                   method: "PUT",

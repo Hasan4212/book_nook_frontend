@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { authorizedFetch } from "@/lib/api";
 import { useToast } from "@/components/Toast";
 import type { Book, EditFormState } from "./types";
 
@@ -95,7 +96,7 @@ export default function MyBooksPage() {
     try {
       setDeletingId(book._id);
 
-      const res = await fetch(`http://localhost:8000/books/${book._id}`, {
+      const res = await authorizedFetch(`http://localhost:8000/books/${book._id}`, {
         method: "DELETE",
       });
 
@@ -155,7 +156,7 @@ export default function MyBooksPage() {
         });
       }
 
-      const res = await fetch(`http://localhost:8000/books/${editingId}`, {
+      const res = await authorizedFetch(`http://localhost:8000/books/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...editForm, coverImage }),

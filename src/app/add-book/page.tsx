@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { authorizedFetch } from "@/lib/api";
 import { useToast } from "@/components/Toast";
 
 const CATEGORIES = [
@@ -65,7 +66,7 @@ export default function AddBookPage() {
           })
         : "";
 
-      const res = await fetch("http://localhost:8000/books", {
+      const res = await authorizedFetch("http://localhost:8000/books", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -28,13 +28,18 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Sync profile data when the actual user data changes
-  useEffect(() => {
-    if (user) {
-      setName(user.name || "");
-      setImage(user.image || "");
-    }
-  }, [user?.id, user?.name, user?.image]);
+  // Sync profile data when the actual user data changes.
+  // (Adjusting state when a prop-like value changes, per the React docs —
+  // checking the previous key during render instead of inside an effect.)
+  const syncKey = user ? `${user.id}|${user.name}|${String(user.image ?? "")}` : undefined;
+  // State that remembers which session data the from-fields were synced from.
+  const [syncedKey, setSyncedKey] = useState<string | undefined>(undefined);
+
+  if (user && syncKey !== syncedKey) {
+    setSyncedKey(syncKey);
+    setName(user.name || "");
+    setImage(user.image || "");
+  }
 
   // Redirect unauthenticated users
   useEffect(() => {
