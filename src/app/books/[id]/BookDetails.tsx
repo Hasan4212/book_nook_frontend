@@ -40,7 +40,7 @@ const BookDetails = ({ params }: { params: Promise<{ id: string }> }) => {
   useEffect(() => {
     const fetchBook = async () => {
       try {
-        const res = await fetch("http://localhost:8000/books");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/books`);
 
         if (!res.ok) {
           throw new Error("Failed to fetch books");
@@ -57,7 +57,7 @@ const BookDetails = ({ params }: { params: Promise<{ id: string }> }) => {
 
         // Check whether the current user already borrowed this book
         if (found && user?.email) {
-          const borrowsRes = await authorizedFetch("http://localhost:8000/borrows");
+          const borrowsRes = await authorizedFetch(`${process.env.NEXT_PUBLIC_API_URL}/borrows`);
 
           if (borrowsRes.ok) {
             const borrowsData: Borrow[] = await borrowsRes.json();
@@ -112,7 +112,7 @@ const BookDetails = ({ params }: { params: Promise<{ id: string }> }) => {
       setBorrowing(true);
       setBorrowError(null);
 
-      const res = await authorizedFetch("http://localhost:8000/borrow", {
+      const res = await authorizedFetch(`${process.env.NEXT_PUBLIC_API_URL}/borrow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -139,7 +139,7 @@ const BookDetails = ({ params }: { params: Promise<{ id: string }> }) => {
         const newCopies = Math.max(0, book.copies - 1);
 
         try {
-          const putRes = await authorizedFetch(`http://localhost:8000/books/${book._id}`, {
+          const putRes = await authorizedFetch(`${process.env.NEXT_PUBLIC_API_URL}/books/${book._id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

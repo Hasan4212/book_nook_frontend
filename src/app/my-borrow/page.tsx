@@ -40,7 +40,7 @@ export default function MyBorrowPage() {
 
     (async () => {
       try {
-        const res = await authorizedFetch("http://localhost:8000/borrows");
+        const res = await authorizedFetch(`${process.env.NEXT_PUBLIC_API_URL}/borrows`);
 
         if (!res.ok) {
           throw new Error("Failed to fetch borrowed books");
@@ -78,7 +78,7 @@ export default function MyBorrowPage() {
     try {
       setRemovingId(borrow._id);
 
-      const res = await authorizedFetch(`http://localhost:8000/borrow/${borrow._id}`, {
+      const res = await authorizedFetch(`${process.env.NEXT_PUBLIC_API_URL}/borrow/${borrow._id}`, {
         method: "DELETE",
       });
 
@@ -92,7 +92,7 @@ export default function MyBorrowPage() {
       // available again on the book details page
       if (borrow.bookId) {
         try {
-          const booksRes = await fetch("http://localhost:8000/books");
+          const booksRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/books`);
 
           if (booksRes.ok) {
             const books: Book[] = await booksRes.json();
@@ -102,7 +102,7 @@ export default function MyBorrowPage() {
               const restoredCopies = (book.copies ?? 0) + 1;
 
               const putRes = await authorizedFetch(
-                `http://localhost:8000/books/${book._id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/books/${book._id}`,
                 {
                   method: "PUT",
                   headers: { "Content-Type": "application/json" },

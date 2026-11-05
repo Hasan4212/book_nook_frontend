@@ -66,7 +66,7 @@ export default function AddBookPage() {
           })
         : "";
 
-      const res = await authorizedFetch("http://localhost:8000/books", {
+      const res = await authorizedFetch( `${process.env.NEXT_PUBLIC_API_URL}/books`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
